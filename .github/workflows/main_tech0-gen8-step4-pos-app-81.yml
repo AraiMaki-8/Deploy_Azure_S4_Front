@@ -35,7 +35,7 @@ jobs:
           cp -r ./.next/standalone/. ./deploy
           cp -r ./public ./deploy
           cp -r ./.next/static/. ./deploy/.next/static
-
+          
       - name: Zip artifact for deployment      # インデントを修正
         run: zip release.zip ./deploy -r
 
