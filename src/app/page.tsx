@@ -1,8 +1,6 @@
 'use client'
 import { useState } from 'react'
 
-const API_URL = "https://your-backend-url.azurewebsites.net";
-
 export default function Home() {
   const [productCode, setProductCode] = useState('')
   const [productInfo, setProductInfo] = useState<{
