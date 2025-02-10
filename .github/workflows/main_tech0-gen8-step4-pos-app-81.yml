@@ -28,15 +28,15 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
-
-      - name: Copy artifact for deployment job
+          
+      - name: Copy artifact for deployment job  # インデントを修正
         run: |
           mkdir deploy
           cp -r ./.next/standalone/. ./deploy
           cp -r ./public ./deploy
           cp -r ./.next/static/. ./deploy/.next/static
 
-      - name: Zip artifact for deployment
+      - name: Zip artifact for deployment      # インデントを修正
         run: zip release.zip ./deploy -r
 
       - name: Upload artifact for deployment job
