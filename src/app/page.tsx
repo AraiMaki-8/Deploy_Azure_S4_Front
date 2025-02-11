@@ -11,7 +11,7 @@ export default function Home() {
 
   const handleSearch = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/products/${productCode}`)
+      const response = await fetch(`http://tech0-gen8-step4-pos-app-81.azurewebsites.net/products/${productCode}`)
       const data = await response.json()
       
       if (!data.product_name) {

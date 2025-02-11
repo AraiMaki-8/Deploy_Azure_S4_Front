@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone'  // この1行だけ追加が必要
+  // output: 'standalone' を削除
 };
 
 module.exports = nextConfig; 
