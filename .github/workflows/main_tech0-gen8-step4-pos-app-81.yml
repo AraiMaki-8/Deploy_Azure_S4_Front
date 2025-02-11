@@ -31,6 +31,7 @@ jobs:
           
       - name: Copy artifact for deployment job  # インデントを修正
         run: |
+          rm -rf deploy  # 既存の deploy フォルダを削除
           mkdir deploy
           cp -r ./.next/standalone/. ./deploy
           cp -r ./public ./deploy
