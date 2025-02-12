@@ -1,6 +1,10 @@
 'use client'
 import { useState } from 'react'
 
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? 'https://tech0-gen8-step4-pos-app-82.azurewebsites.net'  // 本番環境（Azure）
+  : 'http://localhost:8000'  // 開発環境
+
 export default function Home() {
   const [productCode, setProductCode] = useState('')
   const [productInfo, setProductInfo] = useState<{
@@ -21,7 +25,7 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/products/${productCode}`
+        `${API_BASE_URL}/products/${productCode}`
       )
       
       if (!response.ok) {
