@@ -3,7 +3,14 @@ import { useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
-// 型定義を追加
+// 商品情報の型定義
+interface ProductInfo {
+  product_code: string;
+  product_name: string;
+  product_price: number;
+}
+
+// カートアイテムの型定義
 interface CartItem {
   code: string;
   name: string;
@@ -13,7 +20,7 @@ interface CartItem {
 
 export default function Home() {
   const [productCode, setProductCode] = useState('')
-  const [productInfo, setProductInfo] = useState<{ product_name: string | null, product_price: number | null } | null>(null)
+  const [productInfo, setProductInfo] = useState<ProductInfo | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -56,31 +63,31 @@ export default function Home() {
 
   // 商品を購入リストに追加する処理
   const handleAddToCart = () => {
-    if (!productInfo || !productInfo.product_name || !productInfo.product_price) {
-      return;
-    }
+    if (!productInfo) return;
 
     setCart((prevCart: CartItem[]) => {
-      const existingItem = prevCart.find((item) => item.code === productCode);
+      const existingItem = prevCart.find(item => item.code === productInfo.product_code);
 
       if (existingItem) {
-        return prevCart.map((item) =>
-          item.code === productCode ? { ...item, quantity: item.quantity + 1 } : item
+        return prevCart.map(item =>
+          item.code === productInfo.product_code
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
-      } else {
-        return [
-          ...prevCart,
-          {
-            code: productCode,
-            name: productInfo.product_name,
-            price: productInfo.product_price,
-            quantity: 1
-          }
-        ];
       }
+
+      return [
+        ...prevCart,
+        {
+          code: productInfo.product_code,
+          name: productInfo.product_name,
+          price: productInfo.product_price,
+          quantity: 1
+        }
+      ];
     });
-    
-    // リセット処理
+
+    // リセット
     setProductCode('');
     setProductInfo(null);
     setError(null);
