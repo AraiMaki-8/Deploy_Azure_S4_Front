@@ -18,6 +18,15 @@ interface CartItem {
   quantity: number;
 }
 
+// 購入処理の型定義
+interface PurchaseTransaction {
+  emp_cd: string;
+  store_cd: string;
+  pos_no: string;
+  product_code: string;
+  quantity: number;
+}
+
 export default function Home() {
   const [productCode, setProductCode] = useState('')
   const [productInfo, setProductInfo] = useState<ProductInfo | null>(null)
@@ -66,9 +75,11 @@ export default function Home() {
     if (!productInfo) return;
 
     setCart((prevCart: CartItem[]) => {
+      // 既存のアイテムを探す
       const existingItem = prevCart.find(item => item.code === productInfo.product_code);
 
       if (existingItem) {
+        // 既存アイテムの数量を増やす
         return prevCart.map(item =>
           item.code === productInfo.product_code
             ? { ...item, quantity: item.quantity + 1 }
@@ -76,6 +87,7 @@ export default function Home() {
         );
       }
 
+      // 新規アイテムを追加
       return [
         ...prevCart,
         {
@@ -87,7 +99,7 @@ export default function Home() {
       ];
     });
 
-    // リセット
+    // 入力フィールドと検索結果をリセット
     setProductCode('');
     setProductInfo(null);
     setError(null);
@@ -99,12 +111,68 @@ export default function Home() {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0)
   }
 
+  // 税込金額計算関数を追加
+  const calculateTotalWithTax = () => {
+    const subtotal = calculateTotalPrice();
+    const tax = Math.floor(subtotal * 0.1);  // 10%の消費税
+    return subtotal + tax;
+  };
+
   // Enterキーで検索する処理
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSearch()
     }
   }
+
+  // 購入処理の関数
+  const handlePurchase = async () => {
+    try {
+      setIsLoading(true);
+      
+      // カート内の各商品について取引を作成
+      for (const item of cart) {
+        const transaction: PurchaseTransaction = {
+          emp_cd: "",  // 空白の場合は'9999999999'が設定される
+          store_cd: "30",  // 店舗コード固定
+          pos_no: "90",  // POS機ID固定
+          product_code: item.code,
+          quantity: item.quantity
+        };
+
+        const response = await fetch(`${API_BASE_URL}/transactions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(transaction)
+        });
+
+        if (!response.ok) {
+          throw new Error('購入処理に失敗しました');
+        }
+      }
+
+      // 成功時の処理：既存のポップアップ表示
+      alert(
+        `小計: ${calculateTotalPrice().toLocaleString()}円\n` +
+        `消費税: ${Math.floor(calculateTotalPrice() * 0.1).toLocaleString()}円\n` +
+        `合計金額（税込）: ${calculateTotalWithTax().toLocaleString()}円\n\n` +
+        `ご購入ありがとうございました！`
+      );
+      
+      // カートをクリア
+      setCart([]);
+      setProductCode('');
+      setProductInfo(null);
+      setError(null);
+
+    } catch (err) {
+      setError('購入処理中にエラーが発生しました');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -177,6 +245,15 @@ export default function Home() {
             <div className="text-lg font-bold text-center mt-4 text-black">
               合計: {calculateTotalPrice().toLocaleString()}円
             </div>
+
+            {/* 購入ボタン */}
+            <button
+              className="w-full py-3 mt-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+              onClick={handlePurchase}
+              disabled={isLoading}
+            >
+              {isLoading ? '購入中...' : '購入'}
+            </button>
           </div>
         )}
       </main>
