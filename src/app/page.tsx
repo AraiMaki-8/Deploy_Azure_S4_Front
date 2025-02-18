@@ -51,26 +51,33 @@ export default function Home() {
     if (!productInfo || !productInfo.product_name || !productInfo.product_price) {
       return
     }
-
+  
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.code === productCode)
-
+  
       if (existingItem) {
-        // 既にカートにある商品なら数量を増やす
         return prevCart.map((item) =>
           item.code === productCode ? { ...item, quantity: item.quantity + 1 } : item
         )
       } else {
-        // 新規の商品を追加
-        return [...prevCart, { code: productCode, name: productInfo.product_name, price: productInfo.product_price, quantity: 1 }]
+        return [
+          ...prevCart,
+          { 
+            code: productCode, 
+            name: productInfo.product_name ?? "未登録商品", // ✅ null の場合は "未登録商品"
+            price: productInfo.product_price, 
+            quantity: 1 
+          }
+        ]
       }
     })
-
+  
     // 入力フィールドと検索結果をリセット
     setProductCode('')
     setProductInfo(null)
     setError(null)
   }
+  
 
   // 合計金額を計算
   const calculateTotalPrice = () => {
