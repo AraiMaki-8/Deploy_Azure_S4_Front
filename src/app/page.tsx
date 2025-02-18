@@ -3,6 +3,14 @@ import { useState } from 'react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
+// 型定義を追加
+interface CartItem {
+  code: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
 export default function Home() {
   const [productCode, setProductCode] = useState('')
   const [productInfo, setProductInfo] = useState<{ product_name: string | null, product_price: number | null } | null>(null)
@@ -10,7 +18,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
 
   // 購入リスト（カート）の状態を管理
-  const [cart, setCart] = useState<{ code: string; name: string; price: number; quantity: number }[]>([])
+  const [cart, setCart] = useState<CartItem[]>([])
 
   // 商品検索処理
   const handleSearch = async () => {
@@ -49,34 +57,34 @@ export default function Home() {
   // 商品を購入リストに追加する処理
   const handleAddToCart = () => {
     if (!productInfo || !productInfo.product_name || !productInfo.product_price) {
-      return
+      return;
     }
-  
-    setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.code === productCode)
-  
+
+    setCart((prevCart: CartItem[]) => {
+      const existingItem = prevCart.find((item) => item.code === productCode);
+
       if (existingItem) {
         return prevCart.map((item) =>
           item.code === productCode ? { ...item, quantity: item.quantity + 1 } : item
-        )
+        );
       } else {
         return [
           ...prevCart,
-          { 
-            code: productCode, 
-            name: productInfo.product_name ?? "未登録商品", // ✅ null の場合は "未登録商品"
-            price: productInfo.product_price, 
-            quantity: 1 
+          {
+            code: productCode,
+            name: productInfo.product_name,
+            price: productInfo.product_price,
+            quantity: 1
           }
-        ]
+        ];
       }
-    })
-  
-    // 入力フィールドと検索結果をリセット
-    setProductCode('')
-    setProductInfo(null)
-    setError(null)
-  }
+    });
+    
+    // リセット処理
+    setProductCode('');
+    setProductInfo(null);
+    setError(null);
+  };
   
 
   // 合計金額を計算
